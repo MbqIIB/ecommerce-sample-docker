@@ -1,0 +1,42 @@
+version: "2"
+services:
+  elk:
+    image: ecommerce-sample/docker
+    ports:
+      - "9200:9200"
+      - "8200:80"
+      - "5000:5000/udp"
+  eureka:
+    image: ecommerce-sample/eureka-server
+    ports:
+      - "5001:5001"
+    links:
+      - elk:elk
+    depends_on:
+      - "elk"
+  price-service:
+    image: ecommerce-sample/pricing-service
+    links:
+      - eureka:eureka
+      - elk:elk
+    depends_on:
+      - "eureka"
+      - "elk"
+  product-catalogue-service:
+    image: ecommerce-sample/product-catalogue-service
+    links:
+      - eureka:eureka
+      - elk:elk
+    depends_on:
+      - "eureka"
+      - "elk"
+  webapp:
+    image: ecommerce-sample/ecommerce-webapp
+    links:
+      - eureka:eureka
+      - elk:elk
+    depends_on:
+      - "eureka"
+      - "elk"
+  zipkin:
+    image: ecommerce-sample/zipkin
